@@ -28,7 +28,11 @@ const Users = sequelize.define('Users', {
     refreshToken: {
         type: DataTypes.STRING,
         allowNull: true
-    }, 
+    },
+    resetToken: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
     resetTokenExpire: {
         type: DataTypes.DATE,
         allowNull: true

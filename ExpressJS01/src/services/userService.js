@@ -79,7 +79,7 @@ const getAllUsersService = async () => {
     }
 }
 
-const forgorPasswordService = async () => {
+const forgorPasswordService = async (email) => {
     try {
         const user = await Users.findOne({where: {email}});
         if (!user) {
@@ -105,7 +105,7 @@ const forgorPasswordService = async () => {
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
         
         await transporter.sendMail({
-            from: '"FullStack MySQL" <{process.env.EMAIL_USER}>',
+            from: `"FullStack MySQL" <${process.env.EMAIL_USER}>`,
             to: user.email,
             subject: 'Reset Password',
             html: `
@@ -141,7 +141,13 @@ const resetPasswordService = async (email, token, newPassword) => {
                 EM: 'User not found'
             };
         }
-        if (new Date() > user.resetTokenExpire) {
+        if (!user.resetToken || user.resetToken !== token) {
+            return {
+                EC: -1,
+                EM: 'Invalid reset token'
+            };
+        }
+        if (!user.resetTokenExpire || new Date() > user.resetTokenExpire) {
             return {
                 EC: -1,
                 EM: 'Reset token expired'
@@ -160,12 +166,12 @@ const resetPasswordService = async (email, token, newPassword) => {
             EM: 'Reset password failed'
         };
     }
-    
-    module.exports = {
-        createUserService,
-        loginUserService,
-        getAllUsersService,
-        forgorPasswordService,
-        resetPasswordService
-    };
+};
+
+module.exports = {
+    createUserService,
+    loginUserService,
+    getAllUsersService,
+    forgorPasswordService,
+    resetPasswordService
 };
